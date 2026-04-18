@@ -1,4 +1,4 @@
-package fr.quinquenaire.projet12joiefull.presentation
+package fr.quinquenaire.projet12joiefull.presentation.theme
 
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
