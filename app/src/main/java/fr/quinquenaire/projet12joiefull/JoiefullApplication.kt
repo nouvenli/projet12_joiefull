@@ -9,4 +9,4 @@ import dagger.hilt.android.HiltAndroidApp
  * <application android:name=".MonApplication" ... />
  */
 @HiltAndroidApp
-class MonApplication : Application()
+class JoiefullApplication : Application()
