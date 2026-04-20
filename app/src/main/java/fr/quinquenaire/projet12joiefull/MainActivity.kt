@@ -7,6 +7,8 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import dagger.hilt.android.AndroidEntryPoint
+import fr.quinquenaire.projet12joiefull.presentation.theme.JoiefullTheme
+import fr.quinquenaire.projet12joiefull.presentation.ui.CatalogItemsApp
 
 /**
  * Activity principale — point d'entrée de l'application.
@@ -29,7 +31,9 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             val windowSizeClass = calculateWindowSizeClass(this)
-            // TODO Mettre le thème
+            JoiefullTheme() {
+                //TODO
+            }
         }
     }
 }
