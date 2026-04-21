@@ -28,10 +28,8 @@ class RepositoryImpl @Inject constructor(
 
     // -- populate if room is empty --
     override suspend fun ensureDataAvailable() {
-        if (catalogItemsDao.getCount() == 0) {
-            val catalogItems = catalogItemsApiService.getCatalogItemsList()
-            catalogItemsDao.insertAll(catalogItems.map { it.toEntity() })
-        }
+                val catalogItems = catalogItemsApiService.getCatalogItemsList()
+                catalogItemsDao.insertAll(catalogItems.map { it.toEntity() })
     }
 
     // -- user actions --

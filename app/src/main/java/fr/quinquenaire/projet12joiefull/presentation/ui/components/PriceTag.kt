@@ -23,12 +23,12 @@ fun PriceTag (
     ) {
         Text(
             text = "${price}€",
-            style = MaterialTheme.typography.bodyMedium,
+            style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.primary
         )
         Text(
             text = "${originalPrice}€",
-            style = MaterialTheme.typography.bodyMedium,
+            style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textDecoration = TextDecoration.LineThrough
         )

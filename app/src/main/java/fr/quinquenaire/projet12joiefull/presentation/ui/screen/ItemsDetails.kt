@@ -11,7 +11,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.AccountCircle
@@ -32,6 +34,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
@@ -57,14 +60,18 @@ fun ItemsDetails(
     onCommentItem: (String) -> Unit,
     onShare: (String, Double) -> Unit
 ) {
+    val scrollState = rememberScrollState()
     Column(
-        modifier = modifier.padding(8.dp)
+        modifier = modifier
+            .fillMaxSize()
+            .verticalScroll(scrollState)
+            .padding(8.dp)
     ) {
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .aspectRatio(16f / 9f)
-                .clip(MaterialTheme.shapes.medium)
+                .aspectRatio(3f / 2f)
+                .clip(MaterialTheme.shapes.small)
         ) {
             AsyncImage(
                 model = ImageRequest.Builder(LocalContext.current)
@@ -76,14 +83,28 @@ fun ItemsDetails(
                 modifier = Modifier.fillMaxWidth()
             )
             Row(
-                modifier = Modifier.fillMaxWidth().padding(16.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                IconButton(onClick = onBack) {
-                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Retour")
+                Surface(
+                    color = Color.White.copy(alpha = 0.3f),
+                    shape = CircleShape,
+                    modifier = Modifier.size(40.dp)
+                ) {
+                    IconButton(onClick = onBack) {
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Retour")
+                    }
                 }
-                IconButton(onClick = { onShare(item.name, item.price)}) {
-                    Icon(Icons.Default.Share, contentDescription = "Partager")
+                Surface(
+                    color = Color.White.copy(alpha = 0.3f),
+                    shape = CircleShape,
+                    modifier = Modifier.size(40.dp)
+                ) {
+                    IconButton(onClick = { onShare(item.name, item.price) }) {
+                        Icon(Icons.Default.Share, contentDescription = "Partager")
+                    }
                 }
             }
 
@@ -117,7 +138,9 @@ fun ItemsDetails(
 //zone notation
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.fillMaxWidth().padding(top = 16.dp)
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 16.dp)
         ) {
             Surface(
                 modifier = Modifier

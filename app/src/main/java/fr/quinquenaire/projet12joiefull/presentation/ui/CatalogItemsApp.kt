@@ -6,6 +6,7 @@ import androidx.compose.material3.adaptive.layout.AnimatedPane
 import androidx.compose.material3.adaptive.layout.ListDetailPaneScaffold
 import androidx.compose.material3.adaptive.layout.ListDetailPaneScaffoldRole
 import androidx.compose.material3.adaptive.navigation.rememberListDetailPaneScaffoldNavigator
+import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
@@ -22,6 +23,7 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun CatalogItemsApp(
+    windowSizeClass: WindowSizeClass,
     viewModel: CatalogItemsViewModel = hiltViewModel()
 ) {
     // 1. Récupération des données

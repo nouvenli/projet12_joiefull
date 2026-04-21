@@ -8,6 +8,6 @@ import retrofit2.http.GET
  */
 interface CatalogItemsApiService {
 
-    @GET("catalog.json")
+    @GET("clothes.json")
     suspend fun getCatalogItemsList(): List<CatalogItemsDto>
 }
