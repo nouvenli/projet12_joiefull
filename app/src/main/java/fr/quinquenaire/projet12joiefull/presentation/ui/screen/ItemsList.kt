@@ -16,11 +16,11 @@ import fr.quinquenaire.projet12joiefull.domain.model.CatalogItems
 
 @Composable
 fun ItemsList(
+    modifier: Modifier = Modifier,
     itemsByCategory: Map<String, List<CatalogItems>>,
     onItemClick: (Long) -> Unit,
     selectedItemId: Long? = null,
-    onToggleFavorite: (Long) -> Unit = {},
-    modifier: Modifier = Modifier
+    onToggleFavorite: (Long) -> Unit = {}
 ) {
     if (itemsByCategory.isEmpty()) {
 
@@ -32,6 +32,8 @@ fun ItemsList(
             itemsByCategory.forEach { (category, items) ->
                 item {
                     Text(text = category, style = MaterialTheme.typography.titleMedium)
+                }
+                item {
                     LazyRow {
                         items(items) { item ->
                             ItemsCard(
