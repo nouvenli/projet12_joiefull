@@ -1,3 +1,14 @@
 <resources>
     <string name="app_name">projet12joiefull</string>
+    <string name="back">Retour</string>
+    <string name="share">Partager</string>
+    <string name="avatar">Avatar</string>
+    <string name="comment_label">Partagez ici vos impressions sur cette pièce</string>
+    <string name="send">Envoyer</string>
+    <string name="empty_detail_placeholder">Sélectionnez un article</string>
+    <string name="share_message">Regarde cet article sur Joiefull : %1$s à %2$.2f€ !</string>
+    <string name="share_chooser_title">Partager via</string>
+    <string name="no_data_message">Aucune donnée chargée. Vérifiez les logs.</string>
+    <string name="remove_from_favorites">Enlever des favoris</string>
+    <string name="add_to_favorites">Ajouter aux favoris</string>
 </resources>

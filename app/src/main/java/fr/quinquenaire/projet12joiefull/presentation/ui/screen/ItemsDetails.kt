@@ -1,5 +1,6 @@
 package fr.quinquenaire.projet12joiefull.presentation.ui.screen
 
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -17,7 +18,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.AccountCircle
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
@@ -27,6 +27,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -34,14 +35,19 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
 import coil3.request.crossfade
+import fr.quinquenaire.projet12joiefull.R
 import fr.quinquenaire.projet12joiefull.domain.model.CatalogItems
 import fr.quinquenaire.projet12joiefull.presentation.theme.JoiefullTheme
 import fr.quinquenaire.projet12joiefull.presentation.ui.components.FavoriteBadge
@@ -61,11 +67,15 @@ fun ItemsDetails(
     onShare: (String, Double) -> Unit
 ) {
     val scrollState = rememberScrollState()
+    val focusRequester = remember { FocusRequester() }
+
     Column(
         modifier = modifier
             .fillMaxSize()
             .verticalScroll(scrollState)
             .padding(8.dp)
+            .focusRequester(focusRequester)
+            .focusable()
     ) {
         Box(
             modifier = Modifier
@@ -94,7 +104,10 @@ fun ItemsDetails(
                     modifier = Modifier.size(40.dp)
                 ) {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Retour")
+                        Icon(
+                            Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = stringResource(R.string.back)
+                        )
                     }
                 }
                 Surface(
@@ -103,7 +116,10 @@ fun ItemsDetails(
                     modifier = Modifier.size(40.dp)
                 ) {
                     IconButton(onClick = { onShare(item.name, item.price) }) {
-                        Icon(Icons.Default.Share, contentDescription = "Partager")
+                        Icon(
+                            Icons.Default.Share,
+                            contentDescription = stringResource(R.string.share)
+                        )
                     }
                 }
             }
@@ -148,10 +164,9 @@ fun ItemsDetails(
                     .clip(CircleShape),
                 color = MaterialTheme.colorScheme.surfaceVariant
             ) {
-                // AsyncImage ou Icon A VOIR
                 Icon(
                     imageVector = Icons.Filled.AccountCircle,
-                    contentDescription = "Avatar",
+                    contentDescription = stringResource(R.string.avatar),
                     modifier = Modifier.fillMaxSize()
                 )
             }
@@ -174,7 +189,7 @@ fun ItemsDetails(
             onValueChange = { newText ->
                 commentText = newText
             },
-            label = { Text("Partagez ici vos impressions sur cette pièce") },
+            label = { Text(stringResource(R.string.comment_label)) },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = 12.dp),
@@ -189,7 +204,7 @@ fun ItemsDetails(
 
             enabled = commentText.isNotBlank() && commentText != (item.userComment ?: "")
         ) {
-            Text("Envoyer")
+            Text(stringResource(R.string.send))
         }
     }
 }

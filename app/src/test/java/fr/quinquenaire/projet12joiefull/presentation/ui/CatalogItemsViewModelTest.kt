@@ -57,14 +57,14 @@ class CatalogItemsViewModelTest {
         )
 
         // On lance un collecteur pour activer le StateFlow
-        val collectJob = launch { viewModel.uiState.collect {} }
+        val collectJob = launch { viewModel.catalogUiState.collect {} }
         advanceUntilIdle()
 
         // THEN: Les données sont groupées
-        val state = viewModel.uiState.value
-        assertEquals(2, state.catalogItemsByCategory.size)
-        assertEquals(2, state.catalogItemsByCategory["Top"]?.size)
-        assertEquals(1, state.catalogItemsByCategory["Bottom"]?.size)
+        val state = viewModel.catalogUiState.value
+        assertEquals(2, state.categories.size)
+        assertEquals(2, state.categories.find { it.name == "Top" }?.items?.size)
+        assertEquals(1, state.categories.find { it.name == "Bottom" }?.items?.size)
         
         collectJob.cancel()
     }
@@ -81,11 +81,11 @@ class CatalogItemsViewModelTest {
             getCatalogItemsList, updateRating, toggleFavorite, getCatalogItemsById, ensureDataAvailable, commentItem
         )
         
-        val collectJob = launch { viewModel.uiState.collect {} }
+        val collectJob = launch { viewModel.catalogUiState.collect {} }
         advanceUntilIdle()
 
         // THEN
-        assertEquals(errorMessage, viewModel.uiState.value.error)
+        assertEquals(errorMessage, viewModel.catalogUiState.value.error)
         collectJob.cancel()
     }
 

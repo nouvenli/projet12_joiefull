@@ -17,7 +17,7 @@ fun PriceTag (
     modifier: Modifier = Modifier
 ){
     Row(
-    modifier = Modifier.fillMaxWidth(),
+    modifier = modifier.fillMaxWidth(),
     horizontalArrangement = Arrangement.SpaceBetween,
     verticalAlignment = Alignment.CenterVertically
     ) {

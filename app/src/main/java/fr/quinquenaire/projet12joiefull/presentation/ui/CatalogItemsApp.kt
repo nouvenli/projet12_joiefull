@@ -5,64 +5,76 @@ import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.material3.adaptive.layout.AnimatedPane
 import androidx.compose.material3.adaptive.layout.ListDetailPaneScaffold
 import androidx.compose.material3.adaptive.layout.ListDetailPaneScaffoldRole
+import androidx.compose.material3.adaptive.navigation.ThreePaneScaffoldNavigator
 import androidx.compose.material3.adaptive.navigation.rememberListDetailPaneScaffoldNavigator
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import fr.quinquenaire.projet12joiefull.R
 import fr.quinquenaire.projet12joiefull.domain.model.CatalogItems
 import fr.quinquenaire.projet12joiefull.presentation.theme.JoiefullTheme
 import fr.quinquenaire.projet12joiefull.presentation.ui.screen.ItemsDetails
 import fr.quinquenaire.projet12joiefull.presentation.ui.screen.ItemsList
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
-
+/**
+ * Composant Stateful (gère l'état du ViewModel et de la navigation).
+ */
+@OptIn(ExperimentalMaterial3AdaptiveApi::class)
 @Composable
 fun CatalogItemsApp(
     windowSizeClass: WindowSizeClass,
     viewModel: CatalogItemsViewModel = hiltViewModel()
 ) {
-    // 1. Récupération des données
-    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    // 1. État des données
+    val catalogUiState by viewModel.catalogUiState.collectAsStateWithLifecycle()
 
+    // 2. État de navigation (Stateful)
+    val navigator = rememberListDetailPaneScaffoldNavigator<Long>()
+    val scope = rememberCoroutineScope()
+
+    // On passe tout au contenu Stateless
     CatalogItemsAppContent(
-        uiState = uiState,
+        catalogUiState = catalogUiState,
+        navigator = navigator,
+        scope = scope,
         onToggleFavorite = { viewModel.onToggleFavorite(it) },
         onUpdateRating = { id, rating -> viewModel.onUpdateRating(id, rating) },
         onCommentItem = { id, comment -> viewModel.onCommentItem(id, comment) }
     )
 }
 
+/**
+ * Composant Stateless (reçoit l'état par paramètres).
+ * Public pour permettre les tests d'interface.
+ */
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
 @Composable
 fun CatalogItemsAppContent(
-    uiState: UiState,
+    catalogUiState: CatalogUiState,
+    navigator: ThreePaneScaffoldNavigator<Long>,
+    scope: CoroutineScope,
     onToggleFavorite: (Long) -> Unit,
     onUpdateRating: (Long, Float) -> Unit,
     onCommentItem: (Long, String) -> Unit
 ) {
     val context = LocalContext.current
-    val scope = rememberCoroutineScope()  //pour fonction suspendue navigateTo
 
-    // 2. Initialisation du navigateur adaptatif (on transporte l'ID de l'article)
-    val navigator = rememberListDetailPaneScaffoldNavigator<Long>()
-
-
-    // 3. Le Scaffold Adaptatif
     ListDetailPaneScaffold(
         directive = navigator.scaffoldDirective,
         value = navigator.scaffoldValue,
         listPane = {
-            // -- liste --
             AnimatedPane {
                 ItemsList(
-                    itemsByCategory = uiState.catalogItemsByCategory,
+                    categories = catalogUiState.categories,
                     onItemClick = { itemId ->
-                        // navigation dans coroutines
                         scope.launch {
                             navigator.navigateTo(ListDetailPaneScaffoldRole.Detail, itemId)
                         }
@@ -73,12 +85,9 @@ fun CatalogItemsAppContent(
             }
         },
         detailPane = {
-            // -- details --
             val selectedId = navigator.currentDestination?.contentKey
-
-            // On cherche l'item correspondant à l'ID sélectionné
-            val selectedItem = uiState.catalogItemsByCategory.values
-                .flatten()
+            val selectedItem = catalogUiState.categories
+                .flatMap { it.items }
                 .find { it.id == selectedId }
 
             AnimatedPane {
@@ -86,26 +95,24 @@ fun CatalogItemsAppContent(
                     ItemsDetails(
                         item = selectedItem,
                         onBack = {
-                            // Gère le retour sur téléphone
                             scope.launch {
                                 navigator.navigateBack()
                             }
                         },
-                        onShare = { name:String, price: Double ->
+                        onShare = { name, price ->
                             shareItem(context, name, price)
                         },
-                        onRate = { rating: Float ->
+                        onRate = { rating ->
                             onUpdateRating(selectedItem.id, rating)
                         },
                         onToggleFavorite = {
                             onToggleFavorite(selectedItem.id)
                         },
-                        onCommentItem = { comment: String ->
+                        onCommentItem = { comment ->
                             onCommentItem(selectedItem.id, comment)
                         }
                     )
                 } else {
-                    // Optionnel : un écran vide ou un message "Sélectionnez un article"
                     EmptyDetailPlaceholder()
                 }
             }
@@ -113,78 +120,35 @@ fun CatalogItemsAppContent(
     )
 }
 
-fun shareItem(context: android.content.Context, name: String, price: Double) {
+private fun shareItem(context: android.content.Context, name: String, price: Double) {
     val shareIntent = Intent().apply {
         action = Intent.ACTION_SEND
         putExtra(
             Intent.EXTRA_TEXT,
-            "Regarde cet article sur Joiefull : $name à ${price}€ !"
+            context.getString(R.string.share_message, name, price)
         )
         type = "text/plain"
     }
     context.startActivity(
-        Intent.createChooser(shareIntent, "Partager via")
+        Intent.createChooser(shareIntent, context.getString(R.string.share_chooser_title))
     )
 }
 
 @Composable
-fun EmptyDetailPlaceholder() {
-    // Implémentation simple
-    androidx.compose.material3.Text("Sélectionnez un article")
+private fun EmptyDetailPlaceholder() {
+    androidx.compose.material3.Text(stringResource(R.string.empty_detail_placeholder))
 }
 
-/*@Preview(showBackground = true)
+@OptIn(ExperimentalMaterial3AdaptiveApi::class)
+@Preview(showBackground = true, device = "spec:width=1280dp,height=800dp,dpi=240")
+@Preview(showBackground = true, device = "spec:width=411dp,height=891dp,dpi=420")
 @Composable
-fun CatalogItemsAppPreview() {
+private fun CatalogItemsAppPreview() {
     val sampleItems = listOf(
         CatalogItems(
             id = 1L,
             name = "Veste en jean",
-            imageUrl = "",
-            description = "Une belle veste en jean",
-            category = "Hauts",
-            likes = 10,
-            price = 49.99,
-            originalPrice = 59.99,
-            isFavorite = false,
-            userRating = 4.5f,
-            userComment = "Super veste !"
-        ),
-        CatalogItems(
-            id = 2L,
-            name = "Pantalon chino",
-            imageUrl = "",
-            description = "Pantalon chino confortable",
-            category = "Bas",
-            likes = 5,
-            price = 39.99,
-            originalPrice = 39.99,
-            isFavorite = true,
-            userRating = null,
-            userComment = null
-        )
-    )
-
-    JoiefullTheme {
-        CatalogItemsAppContent(
-            uiState = UiState(
-                catalogItemsByCategory = sampleItems.groupBy { it.category }
-            ),
-            onToggleFavorite = {},
-            onUpdateRating = { _, _ -> },
-            onCommentItem = { _, _ -> }
-        )
-    }
-}*/
-@Preview(showBackground = true, device = "spec:width=1280dp,height=800dp,dpi=240") // Preview en mode Tablette
-@Preview(showBackground = true, device = "spec:width=411dp,height=891dp,dpi=420")  // Preview en mode Téléphone
-@Composable
-fun CatalogItemsAppPreview() {
-    val sampleItems = listOf(
-        CatalogItems(
-            id = 1L,
-            name = "Veste en jean",
-            imageUrl = "https://picsum.photos/200", // Image de test
+            imageUrl = "https://picsum.photos/200",
             description = "Une belle veste en jean indémodable.",
             category = "Hauts",
             likes = 10,
@@ -193,27 +157,23 @@ fun CatalogItemsAppPreview() {
             isFavorite = false,
             userRating = 4.5f,
             userComment = "Super veste !"
-        ),
-        CatalogItems(
-            id = 2L,
-            name = "Pantalon chino",
-            imageUrl = "https://picsum.photos/201", // Image de test
-            description = "Pantalon chino confortable pour l'été.",
-            category = "Bas",
-            likes = 5,
-            price = 39.99,
-            originalPrice = 39.99,
-            isFavorite = true,
-            userRating = null,
-            userComment = null
         )
     )
 
+    val categories = sampleItems.groupBy { it.category }
+        .map { (name, items) -> CategorySection(name, items) }
+
     JoiefullTheme {
+        // Dans la preview, on recrée un navigator et un scope "locaux"
+        val navigator = rememberListDetailPaneScaffoldNavigator<Long>()
+        val scope = rememberCoroutineScope()
+
         CatalogItemsAppContent(
-            uiState = UiState(
-                catalogItemsByCategory = sampleItems.groupBy { it.category }
+            catalogUiState = CatalogUiState(
+                categories = categories
             ),
+            navigator = navigator,
+            scope = scope,
             onToggleFavorite = {},
             onUpdateRating = { _, _ -> },
             onCommentItem = { _, _ -> }

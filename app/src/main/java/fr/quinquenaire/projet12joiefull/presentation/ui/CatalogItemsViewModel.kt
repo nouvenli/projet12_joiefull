@@ -15,9 +15,9 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -31,35 +31,26 @@ class CatalogItemsViewModel @Inject constructor(
     private val commentItem: CommentItem
 ) : ViewModel() {
 
-    private val _localState = MutableStateFlow(UiState())
+    private val _localState = MutableStateFlow(CatalogUiState())
 
-    val uiState: StateFlow<UiState> = combine(
+    val catalogUiState: StateFlow<CatalogUiState> = combine(
         getCatalogItemsList(),
         _localState
     ) { catalogItems, localState ->
         localState.copy(
-            catalogItemsByCategory = catalogItems.groupBy { it.category }
+            categories = catalogItems.groupBy { it.category }
+                .map { (name, items) -> CategorySection(name, items) }
         )
     }.stateIn(
         scope = viewModelScope,
-        started=SharingStarted.WhileSubscribed(5000),
-        initialValue = UiState(isLoading = true)
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = CatalogUiState(isLoading = true)
     )
 
     init {
         loadInitialData()
     }
 
-    fun onSelectItem(id: Long) {
-        getCatalogItemsById(id)
-            .onEach { item ->
-                _localState.update { it.copy(selectedItem = item) }
-            }
-            .catch { e ->
-                _localState.update { it.copy(error = e.message ?: "Unknown error") }
-            }
-            .launchIn(viewModelScope)
-    }
 
     private fun loadInitialData() {
         viewModelScope.launch {
@@ -72,10 +63,6 @@ class CatalogItemsViewModel @Inject constructor(
                 _localState.update { it.copy(isLoading = false) }
             }
         }
-    }
-
-    fun onClearSelection() {
-        _localState.update { it.copy(selectedItem = null) }
     }
 
     fun onToggleFavorite(id: Long) {

@@ -44,7 +44,7 @@ fun ItemsCard(
 ) {
     Card(
         onClick = onClick,
-        modifier = modifier.width(200.dp),
+        modifier = modifier,
         border = if (isSelected) BorderStroke(2.dp, MaterialTheme.colorScheme.primary) else null,
         elevation = CardDefaults.elevatedCardElevation(2.dp) // a verifier elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {

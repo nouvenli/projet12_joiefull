@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -22,16 +23,18 @@ fun RatingTag(
         Row(modifier = modifier) {
             for (i in 1..maxRating) {
                 val isSelected = i <= currentRating
-                Icon(
-                    imageVector = Icons.Default.Star,
-                    contentDescription = "Étoile $i",
-                    tint = if (isSelected) Color(0xFFFFC107) else Color.Gray,
-                    modifier = Modifier.clickable {
+                IconButton(
+                    onClick = {
                         onRatingChanged(i.toFloat())
                     }
-                )
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Star,
+                        contentDescription = "Étoile $i",
+                        tint = if (isSelected) Color(0xFFFFC107) else Color.Gray
+                    )
+                }
             }
         }
-
     }
 }
