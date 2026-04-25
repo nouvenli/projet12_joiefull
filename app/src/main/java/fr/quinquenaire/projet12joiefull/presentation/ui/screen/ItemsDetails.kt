@@ -110,7 +110,7 @@ fun ItemsDetails(
                     .data(item.imageUrl)
                     .crossfade(true)
                     .build(),
-                contentDescription = "${item.name}. ${item.description}.",
+                contentDescription = null, // Set to null to avoid redundancy with the title and description below
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
                     .fillMaxWidth()
@@ -198,9 +198,7 @@ fun ItemsDetails(
         Text(
             text = item.description,
             style = MaterialTheme.typography.bodyMedium,
-            modifier = Modifier
-                .padding(top = 16.dp)
-                .clearAndSetSemantics { }
+            modifier = Modifier.padding(top = 16.dp)
         )
 
         // --- 4. Rating Section ---
