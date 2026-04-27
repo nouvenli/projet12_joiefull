@@ -12,7 +12,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.tooling.preview.Preview
 import fr.quinquenaire.projet12joiefull.R
+import fr.quinquenaire.projet12joiefull.presentation.theme.JoiefullTheme
 
 /**
  * Interactive rating component using stars.
@@ -47,5 +49,16 @@ fun RatingTag(
                 }
             }
         }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun RatingTagPreview() {
+    JoiefullTheme {
+        RatingTag(
+            currentRating = 3f,
+            onRatingChanged = {}
+        )
     }
 }

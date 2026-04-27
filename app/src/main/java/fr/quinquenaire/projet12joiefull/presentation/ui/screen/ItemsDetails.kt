@@ -6,15 +6,13 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.AccountCircle
@@ -39,6 +37,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.CustomAccessibilityAction
@@ -63,7 +62,7 @@ import fr.quinquenaire.projet12joiefull.presentation.ui.components.RatingTag
 
 /**
  * Detailed view of a catalog item.
- * Displays large image, description, rating system, and comments section.
+ * Scroll is removed and image fits without cropping.
  */
 @Composable
 fun ItemsDetails(
@@ -75,8 +74,10 @@ fun ItemsDetails(
     onCommentItem: (String) -> Unit,
     onShare: (String, Double) -> Unit
 ) {
-    val scrollState = rememberScrollState()
     val focusRequester = remember { FocusRequester() }
+    
+    val configuration = LocalConfiguration.current
+    val screenHeight = configuration.screenHeightDp.dp
 
     // Accessibility strings
     val favoriteActionLabel = if (item.isFavorite) {
@@ -86,23 +87,19 @@ fun ItemsDetails(
     }
     val shareActionLabel = stringResource(R.string.share)
 
-    // Requests focus on the header section when the screen is first displayed
     LaunchedEffect(item.id) {
-        scrollState.scrollTo(0)
         focusRequester.requestFocus()
     }
 
     Column(
         modifier = modifier
             .fillMaxSize()
-            .verticalScroll(scrollState)
             .padding(8.dp)
     ) {
         // --- 1. Top Section (Image and Actions) ---
         Box(
             modifier = Modifier
-                .fillMaxWidth()
-                .aspectRatio(3f / 2f)
+                .align(Alignment.CenterHorizontally)
                 .clip(MaterialTheme.shapes.small)
         ) {
             AsyncImage(
@@ -110,10 +107,10 @@ fun ItemsDetails(
                     .data(item.imageUrl)
                     .crossfade(true)
                     .build(),
-                contentDescription = null, // Set to null to avoid redundancy with the title and description below
-                contentScale = ContentScale.Crop,
+                contentDescription = null,
+                contentScale = ContentScale.Fit,
                 modifier = Modifier
-                    .fillMaxWidth()
+                    .heightIn(max = screenHeight * 0.50f)
                     .semantics {
                         customActions = listOf(
                             CustomAccessibilityAction(shareActionLabel) {
@@ -182,7 +179,7 @@ fun ItemsDetails(
                 .focusRequester(focusRequester)
                 .focusable()
                 .semantics(mergeDescendants = true) { 
-                    heading() 
+                    heading()
                 }
         ) {
             NameAndRate(name = item.name, userRating = item.userRating)
@@ -244,7 +241,6 @@ fun ItemsDetails(
             label = { Text(stringResource(R.string.comment_label)) },
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = 16.dp)
                 .semantics { traversalIndex = 7f },
             shape = MaterialTheme.shapes.medium,
             maxLines = 3
