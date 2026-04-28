@@ -1,19 +1,27 @@
-package fr.quinquenaire.projet12joiefull.presentation.ui
+package fr.quinquenaire.projet12joiefull.presentation
 
 import fr.quinquenaire.projet12joiefull.domain.model.CatalogItems
-import fr.quinquenaire.projet12joiefull.domain.usecases.*
+import fr.quinquenaire.projet12joiefull.domain.usecases.CommentItem
+import fr.quinquenaire.projet12joiefull.domain.usecases.EnsureDataAvailable
+import fr.quinquenaire.projet12joiefull.domain.usecases.GetCatalogItemsById
+import fr.quinquenaire.projet12joiefull.domain.usecases.GetCatalogItemsList
+import fr.quinquenaire.projet12joiefull.domain.usecases.ToggleFavorite
+import fr.quinquenaire.projet12joiefull.domain.usecases.UpdateRating
+import fr.quinquenaire.projet12joiefull.presentation.ui.CatalogItemsViewModel
 import io.mockk.coEvery
-import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.test.*
+import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.advanceUntilIdle
+import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.test.setMain
 import org.junit.After
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertFalse
+import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
 
@@ -53,7 +61,12 @@ class CatalogItemsViewModelTest {
 
         // WHEN: On crée le ViewModel
         val viewModel = CatalogItemsViewModel(
-            getCatalogItemsList, updateRating, toggleFavorite, getCatalogItemsById, ensureDataAvailable, commentItem
+            getCatalogItemsList,
+            updateRating,
+            toggleFavorite,
+            getCatalogItemsById,
+            ensureDataAvailable,
+            commentItem
         )
 
         // On lance un collecteur pour activer le StateFlow
@@ -62,10 +75,10 @@ class CatalogItemsViewModelTest {
 
         // THEN: Les données sont groupées
         val state = viewModel.catalogUiState.value
-        assertEquals(2, state.categories.size)
-        assertEquals(2, state.categories.find { it.name == "Top" }?.items?.size)
-        assertEquals(1, state.categories.find { it.name == "Bottom" }?.items?.size)
-        
+        Assert.assertEquals(2, state.categories.size)
+        Assert.assertEquals(2, state.categories.find { it.name == "Top" }?.items?.size)
+        Assert.assertEquals(1, state.categories.find { it.name == "Bottom" }?.items?.size)
+
         collectJob.cancel()
     }
 
@@ -78,14 +91,19 @@ class CatalogItemsViewModelTest {
 
         // WHEN
         val viewModel = CatalogItemsViewModel(
-            getCatalogItemsList, updateRating, toggleFavorite, getCatalogItemsById, ensureDataAvailable, commentItem
+            getCatalogItemsList,
+            updateRating,
+            toggleFavorite,
+            getCatalogItemsById,
+            ensureDataAvailable,
+            commentItem
         )
-        
+
         val collectJob = launch { viewModel.catalogUiState.collect {} }
         advanceUntilIdle()
 
         // THEN
-        assertEquals(errorMessage, viewModel.catalogUiState.value.error)
+        Assert.assertEquals(errorMessage, viewModel.catalogUiState.value.error)
         collectJob.cancel()
     }
 
