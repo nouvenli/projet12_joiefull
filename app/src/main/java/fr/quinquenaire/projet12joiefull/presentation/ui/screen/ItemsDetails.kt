@@ -81,7 +81,7 @@ fun ItemsDetails(
     onCommentChanged: (String) -> Unit
 ) {
     /*
-     *focusrequester prevents the text field from activating upon opening.
+     *focusrequester prevents the text field from activating upon opening when talkback active
      *screenHeight determines the screen size for the image.
      *scrollState enables scrolling.
      */
@@ -150,7 +150,7 @@ fun ItemsDetails(
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Surface(
-                    color = Color.White.copy(alpha = 1f),
+                    color = Color.White,
                     shape = CircleShape,
                     modifier = Modifier.size(48.dp)
                 ) {
@@ -163,7 +163,7 @@ fun ItemsDetails(
                 }
 
                 Surface(
-                    color = Color.White.copy(alpha = 1f),
+                    color = Color.White,
                     shape = CircleShape,
                     modifier = Modifier
                         .size(48.dp)

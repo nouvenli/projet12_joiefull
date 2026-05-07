@@ -36,10 +36,12 @@ class RepositoryImpl @Inject constructor(
         return catalogItemsDao.getById(id).map { it.toDomain() }
     }
 
-    // -- populate if room is empty --
+    // -- populate  --
     override suspend fun ensureDataAvailable() {
-                val catalogItems = catalogItemsApiService.getCatalogItemsList()
-                catalogItemsDao.insertAll(catalogItems.map { it.toEntity() })
+        if (catalogItemsDao.getCount() == 0) {
+            val catalogItems = catalogItemsApiService.getCatalogItemsList()
+            catalogItemsDao.insertAll(catalogItems.map { it.toEntity() })
+        }
     }
 
     // -- user actions --
@@ -50,6 +52,7 @@ class RepositoryImpl @Inject constructor(
     override suspend fun toggleFavorite(id: Long) {
         catalogItemsDao.toggleFavorite(id)
     }
+
     override suspend fun updateUserComment(id: Long, comment: String) {
         catalogItemsDao.updateUserComment(id, comment)
     }
